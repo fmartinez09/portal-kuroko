@@ -34,7 +34,6 @@ jobs:
         run: |
           mkdir -p output
           cp -r .next/standalone/* output/
-          cp -r .next/static output/.next/static
           cp -r public output/public || true
 
       - name: Upload artifact
