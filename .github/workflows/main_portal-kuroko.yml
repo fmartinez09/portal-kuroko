@@ -13,34 +13,28 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
+          node-version: '20.x'  # Azure App Service soporta Node 20.x oficialmente
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build app
+      - name: Build Next.js app
         run: npm run build
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
-      - name: Prepare deployment folder
-        run: |
-          mkdir deploy
-          cp -r .next public package.json package-lock.json next.config.* deploy/
-          cd deploy
-          npm ci --omit=dev
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: deploy
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
@@ -56,7 +50,7 @@ jobs:
           name: nextjs-app
           path: .
 
-      - name: Azure Login
+      - name: Azure login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_CF5670AA01364F22BEAC9BC351F9C4C3 }}
@@ -68,4 +62,4 @@ jobs:
         with:
           app-name: 'portal-kuroko'
           slot-name: 'Production'
-          package: ./deploy
+          package: .
