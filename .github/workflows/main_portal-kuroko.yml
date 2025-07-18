@@ -30,11 +30,18 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
+      - name: Prepare standalone app for Azure
+        run: |
+          mkdir -p output
+          cp -r .next/standalone/* output/
+          cp -r .next/static output/.next/static
+          cp -r public output/public || true
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: .
+          path: output
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,7 +55,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-app
-          path: .
+          path: output
 
       - name: Azure login
         uses: azure/login@v2
@@ -62,4 +69,4 @@ jobs:
         with:
           app-name: 'portal-kuroko'
           slot-name: 'Production'
-          package: .
+          package: output
