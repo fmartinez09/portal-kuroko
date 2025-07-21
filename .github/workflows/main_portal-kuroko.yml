@@ -32,6 +32,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/fmartinez09/portal-kuroko:latest .
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u fmartinez09 --password-stdin
 
       - name: Push Docker image
         run: |

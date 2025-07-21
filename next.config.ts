@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone", // 🔧 Esto genera `.next/standalone`
+  output: "standalone",
   eslint: {
     ignoreDuringBuilds: true,
   },
