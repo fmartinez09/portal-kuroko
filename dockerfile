@@ -17,7 +17,7 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
-# Rebuild the source code only when needed
+# Rebuild the source code only when needed test
 FROM base AS builder
 WORKDIR /app
 ARG NEXT_PUBLIC_SUPABASE_URL
