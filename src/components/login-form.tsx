@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/features/auth/actions";
+import { supabase } from "@/features/auth/client";
+
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,29 +42,35 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (data: FormData) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        body: JSON.stringify({ email: data.email, password: data.password }),
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // ← esto es *crítico*
-      });
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
 
+    const json = await res.json();
 
-      if (!res.ok) {
-        const { error } = await res.json();
-        throw new Error(error || 'Login failed');
-      }
-
-      router.push('/dashboard');
-    } catch (e: any) {
-      setError(e.message || 'Login failed');
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error(json.error || 'Login failed');
     }
-  };
+
+    // ⛳️ setear tokens en el cliente supabase-js
+    await supabase.auth.setSession({
+      access_token: json.access_token,
+      refresh_token: json.refresh_token,
+    });
+
+    router.push('/dashboard');
+  } catch (e: any) {
+    setError(e.message || 'Login failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   return (
