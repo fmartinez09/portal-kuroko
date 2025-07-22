@@ -23,13 +23,22 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ ok: true });
 
+  const secure = process.env.NODE_ENV === 'production';
+
   res.cookies.set('sb-access-token', data.session.access_token, {
     httpOnly: true,
     path: '/',
-    secure: false,
+    secure,
     sameSite: 'lax',
-    maxAge: 604800,
-    //maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 7,
+  });
+
+  res.cookies.set('sb-refresh-token', data.session.refresh_token, {
+    httpOnly: true,
+    path: '/',
+    secure,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
   });
 
   return res;
